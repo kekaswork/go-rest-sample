@@ -8,7 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/kekaswork/go-rest-sample/internal/database"
+	"github.com/kekaswork/go-rest-sample/internal/service/mark"
 	"github.com/kekaswork/go-rest-sample/internal/service/student"
+	"github.com/kekaswork/go-rest-sample/internal/service/subject"
 )
 
 func main() {
@@ -22,19 +24,23 @@ func main() {
 
 	router := gin.Default()
 
+	// Students
 	router.GET("/students", getStudents)
 	router.GET("/students/:id", getStudent)
 	// router.POST("/students", createStudent)
 	// router.PUT("/students/:id", updateStudent)
 	// router.DELETE("/students/:id", deleteStudent)
 
-	// router.GET("/subjects", getSubjects)
-	// router.GET("/subjects/:id", getSubjects)
+	// Subjects
+	router.GET("/subjects", getSubjects)
+	router.GET("/subjects/:id", getSubject)
 	// router.POST("/subjects", createSubject)
 	// router.PUT("/subjects/:id", updateSubject)
 	// router.DELETE("/subjects/:id", deleteSubject)
 
-	// router.GET("/marks", getMarks)
+	// Marks
+	router.GET("/marks", getMarks)
+	router.GET("/marks/:id", getMark)
 	// router.GET("/marks/:id", getMarks)
 	// router.POST("/marks", createMark)
 	// router.PUT("/marks/:id", updateMark)
@@ -71,5 +77,63 @@ func getStudent(c *gin.Context) {
 		return
 	}
 	response := gin.H{"code": 200, "data": student}
+	c.JSON(http.StatusOK, response)
+}
+
+func getSubjects(c *gin.Context) {
+	service := subject.NewService()
+	subjects, err := service.List()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": subjects}
+	c.JSON(http.StatusOK, response)
+}
+
+func getSubject(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		return
+	}
+
+	service := subject.NewService()
+	subject, err := service.Get(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": subject}
+	c.JSON(http.StatusOK, response)
+}
+
+func getMarks(c *gin.Context) {
+	service := mark.NewService()
+	marks, err := service.List()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": marks}
+	c.JSON(http.StatusOK, response)
+}
+
+func getMark(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		return
+	}
+
+	service := mark.NewService()
+	mark, err := service.Get(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": mark}
 	c.JSON(http.StatusOK, response)
 }
