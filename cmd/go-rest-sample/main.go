@@ -28,18 +28,21 @@ func main() {
 	// Students
 	router.GET("/students", getStudents)
 	router.GET("/students/:id", getStudent)
+	router.PUT("/students/:id", updateStudent)
 	router.POST("/students", createStudent)
 	router.DELETE("/students/:id", deleteStudent)
 
 	// Subjects
 	router.GET("/subjects", getSubjects)
 	router.GET("/subjects/:id", getSubject)
+	router.PUT("/subjects/:id", updateSubject)
 	router.POST("/subjects", createSubject)
 	router.DELETE("/subjects/:id", deleteSubject)
 
 	// Marks
 	router.GET("/marks", getMarks)
 	router.GET("/marks/:id", getMark)
+	router.PUT("/marks/:id", updateMark)
 	router.POST("/marks", createMark)
 	router.DELETE("/marks/:id", deleteMark)
 
@@ -86,6 +89,30 @@ func createStudent(c *gin.Context) {
 
 	service := student.NewService()
 	student, err := service.Add(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": student}
+	c.JSON(http.StatusOK, response)
+}
+
+func updateStudent(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student ID"})
+		return
+	}
+
+	var req student.CreateStudentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := student.NewService()
+	student, err := service.Update(id, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
@@ -153,6 +180,30 @@ func createSubject(c *gin.Context) {
 	subject, err := service.Add(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": subject}
+	c.JSON(http.StatusOK, response)
+}
+
+func updateSubject(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		return
+	}
+
+	var req subject.CreateSubjectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := subject.NewService()
+	subject, err := service.Update(id, req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": subject}
@@ -233,6 +284,30 @@ func deleteMark(c *gin.Context) {
 
 	service := mark.NewService()
 	mark, err := service.Remove(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	response := gin.H{"code": 200, "data": mark}
+	c.JSON(http.StatusOK, response)
+}
+
+func updateMark(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mark ID"})
+		return
+	}
+
+	var req mark.CreateMarkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := mark.NewService()
+	mark, err := service.Update(id, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -93,3 +93,32 @@ func (s *Service) Remove(idx int) (*Subject, error) {
 
 	return &subject, nil
 }
+
+func (s *Service) Update(idx int, req CreateSubjectRequest) (*Subject, error) {
+	db := database.NewService()
+
+	var subject Subject
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, name from subjects WHERE id = $1",
+		idx,
+	).Scan(&subject.ID, &subject.Name)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve subject with id %d: %v", idx, err)
+	}
+
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"UPDATE subjects SET name = $1 WHERE id = $2",
+		req.Name, idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to update subject: %v", err)
+	}
+
+	subject.Name = req.Name
+
+	return &subject, nil
+}

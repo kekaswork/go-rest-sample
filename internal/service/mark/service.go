@@ -100,3 +100,34 @@ func (s *Service) Remove(idx int) (*Mark, error) {
 
 	return &mark, nil
 }
+
+func (s *Service) Update(idx int, req CreateMarkRequest) (*Mark, error) {
+	db := database.NewService()
+
+	var mark Mark
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, student_id, subject_id, mark, created_at FROM marks WHERE id = $1",
+		idx,
+	).Scan(&mark.ID, &mark.StudentID, &mark.SubjectID, &mark.Mark, &mark.Created)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve mark with id %d: %v", idx, err)
+	}
+
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"UPDATE marks SET student_id = $1, subject_id = $2, mark = $3 WHERE id = $4",
+		req.StudentID, req.SubjectID, req.Mark, idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to update mark: %v", err)
+	}
+
+	mark.StudentID = req.StudentID
+	mark.SubjectID = req.SubjectID
+	mark.Mark = req.Mark
+
+	return &mark, nil
+}

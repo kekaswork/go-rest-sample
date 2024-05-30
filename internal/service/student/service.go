@@ -97,3 +97,33 @@ func (s *Service) Remove(idx int) (*Student, error) {
 
 	return &student, nil
 }
+
+func (s *Service) Update(idx int, req CreateStudentRequest) (*Student, error) {
+	db := database.NewService()
+
+	var student Student
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, first_name, last_name FROM students WHERE id = $1",
+		idx,
+	).Scan(&student.ID, &student.FirstName, &student.LastName)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve student with id %d: %v", idx, err)
+	}
+
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"UPDATE students SET first_name = $1, last_name = $2 WHERE id = $3",
+		req.FirstName, req.LastName, idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to update student: %v", err)
+	}
+
+	student.FirstName = req.FirstName
+	student.LastName = req.LastName
+
+	return &student, nil
+}
