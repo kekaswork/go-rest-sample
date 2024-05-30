@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/kekaswork/go-rest-sample/internal/database"
 	"github.com/kekaswork/go-rest-sample/internal/service/mark"
+	"github.com/kekaswork/go-rest-sample/internal/service/report"
 	"github.com/kekaswork/go-rest-sample/internal/service/student"
 	"github.com/kekaswork/go-rest-sample/internal/service/subject"
 )
@@ -46,7 +47,8 @@ func main() {
 	router.POST("/marks", createMark)
 	router.DELETE("/marks/:id", deleteMark)
 
-	// router.GET("/report", generateReport)
+	// Report
+	router.GET("/report", generateReport)
 
 	router.Run(":3000")
 }
@@ -313,5 +315,42 @@ func updateMark(c *gin.Context) {
 		return
 	}
 	response := gin.H{"code": 200, "data": mark}
+	c.JSON(http.StatusOK, response)
+}
+
+func generateReport(c *gin.Context) {
+	var prefix = c.Query("prefix")
+	var avgMinRaw = c.Query("min_avg_mark")
+	var subjectIDRaw = c.Query("subject_id")
+	if avgMinRaw == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Set Average Mark Value"})
+		return
+	}
+
+	var avgMin float64
+	avgMin, err := strconv.ParseFloat(avgMinRaw, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid min_avg_mark parameter %s", avgMinRaw)})
+		return
+	}
+	subjectID, err := strconv.Atoi(subjectIDRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		return
+	}
+
+	req := report.ReportRequest{
+		MinAvgMark: float32(avgMin),
+		Prefix:     prefix,
+		SubjectID:  subjectID,
+	}
+
+	service := report.NewService()
+	report, err := service.Report(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	response := gin.H{"code": 200, "data": report}
 	c.JSON(http.StatusOK, response)
 }
