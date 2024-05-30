@@ -1,21 +1,57 @@
 package student
 
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/kekaswork/go-rest-sample/internal/database"
+)
+
 type Service struct{}
 
-func NewService() *Student {
-	return &Student{}
+func NewService() *Service {
+	return &Service{}
 }
 
-func (s *Service) List() []Student {
-	// todo
+func (s *Service) List() ([]Student, error) {
+	db := database.NewService()
 
-	return []Student{}
+	var students []Student
+	var id int
+	var firstName string
+	var lastName string
+	rows, _ := db.GetConn().Query(context.Background(), "select * from students")
+	_, err := pgx.ForEachRow(rows, []any{&id, &firstName, &lastName}, func() error {
+		students = append(students, Student{
+			ID:        id,
+			FirstName: firstName,
+			LastName:  lastName,
+		})
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return students, nil
 }
 
-func (s *Service) Get(id int) (*Student, error) {
-	// todo
+func (s *Service) Get(idx int) (*Student, error) {
+	db := database.NewService()
 
-	return &Student{}, nil
+	var id int
+	var firstName string
+	var lastName string
+	err := db.GetConn().QueryRow(context.Background(), "select * from students where id = $1", idx).Scan(&id, &firstName, &lastName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Student{
+		ID:        id,
+		FirstName: firstName,
+		LastName:  lastName,
+	}, nil
 }
 
 func (s *Service) Add(id int) (*Student, error) {

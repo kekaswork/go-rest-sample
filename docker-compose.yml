@@ -2,17 +2,15 @@ version: '3.9'
 
 services:
 
-  db:
-    image: postgres
-    restart: always
-    shm_size: 128mb
+  database:
+    image: postgres:16-alpine
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: db
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: almaz
 
   adminer:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8081:8080

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS Marks (
     student_id INT,
     subject_id INT,
     mark SMALLINT CHECK (mark >= 1 AND mark <= 5),
-    created DATE,
+    created_at DATE,
     FOREIGN KEY (student_id) REFERENCES Students(id),
     FOREIGN KEY (subject_id) REFERENCES Subjects(id)
 );
@@ -28,9 +28,9 @@ INSERT INTO Subjects (name) VALUES ('Math');
 INSERT INTO Subjects (name) VALUES ('Physics');
 INSERT INTO Subjects (name) VALUES ('Programming');
 
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (1, 1, 4, '2023-05-01');
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (1, 2, 3, '2023-05-02');
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (2, 2, 5, '2023-05-03');
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (2, 3, 2, '2023-05-04');
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (3, 1, 1, '2023-05-05');
-INSERT INTO Marks (student_id, subject_id, mark, mark_date) VALUES (3, 3, 4, '2023-05-06');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (1, 1, 4, '2023-05-01');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (1, 2, 3, '2023-05-02');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (2, 2, 5, '2023-05-03');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (2, 3, 2, '2023-05-04');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (3, 1, 1, '2023-05-05');
+INSERT INTO Marks (student_id, subject_id, mark, created_at) VALUES (3, 3, 4, '2023-05-06');
