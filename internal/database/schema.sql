@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS Marks (
     subject_id INT,
     mark SMALLINT CHECK (mark >= 1 AND mark <= 5),
     created_at DATE,
-    FOREIGN KEY (student_id) REFERENCES Students(id),
-    FOREIGN KEY (subject_id) REFERENCES Subjects(id)
+    FOREIGN KEY (student_id) REFERENCES Students(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES Subjects(id) ON DELETE CASCADE
 );
 
 -- Inserting sample data rows
