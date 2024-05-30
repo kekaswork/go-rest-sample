@@ -19,17 +19,10 @@ func (s *Service) List() ([]Mark, error) {
 	db := database.NewService()
 
 	var marks []Mark
-	var id, studentID, subjectID, mark int
-	var createdAt time.Time
+	var mark Mark
 	rows, _ := db.GetConn().Query(context.Background(), "select * from marks")
-	_, err := pgx.ForEachRow(rows, []any{&id, &studentID, &subjectID, &mark, &createdAt}, func() error {
-		marks = append(marks, Mark{
-			ID:        id,
-			StudentID: studentID,
-			SubjectID: subjectID,
-			Mark:      mark,
-			Created:   createdAt,
-		})
+	_, err := pgx.ForEachRow(rows, []any{&mark.ID, &mark.StudentID, &mark.SubjectID, &mark.Mark, &mark.Created}, func() error {
+		marks = append(marks, mark)
 		return nil
 	})
 	if err != nil {
@@ -42,20 +35,16 @@ func (s *Service) List() ([]Mark, error) {
 func (s *Service) Get(idx int) (*Mark, error) {
 	db := database.NewService()
 
-	var id, studentID, subjectID, mark int
-	var createdAt time.Time
-	err := db.GetConn().QueryRow(context.Background(), "select * from marks where id = $1", idx).Scan(&id, &studentID, &subjectID, &mark, &createdAt)
+	var mark Mark
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"select * from marks where id = $1", idx,
+	).Scan(&mark.ID, &mark.StudentID, &mark.SubjectID, &mark.Mark, &mark.Created)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Mark{
-		ID:        id,
-		StudentID: studentID,
-		SubjectID: subjectID,
-		Mark:      mark,
-		Created:   createdAt,
-	}, nil
+	return &mark, nil
 }
 
 func (s *Service) Add(req CreateMarkRequest) (*Mark, error) {

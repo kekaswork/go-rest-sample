@@ -55,7 +55,7 @@ func getStudents(c *gin.Context) {
 	studentsService := student.NewService()
 	students, err := studentsService.List()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": students}
@@ -73,7 +73,7 @@ func getStudent(c *gin.Context) {
 	studentsService := student.NewService()
 	student, err := studentsService.Get(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": student}
@@ -90,7 +90,7 @@ func createStudent(c *gin.Context) {
 	service := student.NewService()
 	student, err := service.Add(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": student}
@@ -114,7 +114,7 @@ func updateStudent(c *gin.Context) {
 	service := student.NewService()
 	student, err := service.Update(id, req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": student}
@@ -133,7 +133,7 @@ func deleteStudent(c *gin.Context) {
 	student, err := studentsService.Remove(id)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": student}
@@ -144,7 +144,7 @@ func getSubjects(c *gin.Context) {
 	service := subject.NewService()
 	subjects, err := service.List()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": subjects}
@@ -162,7 +162,7 @@ func getSubject(c *gin.Context) {
 	service := subject.NewService()
 	subject, err := service.Get(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": subject}
@@ -179,7 +179,7 @@ func createSubject(c *gin.Context) {
 	service := subject.NewService()
 	subject, err := service.Add(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": subject}
@@ -232,7 +232,7 @@ func getMarks(c *gin.Context) {
 	service := mark.NewService()
 	marks, err := service.List()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": marks}
@@ -250,7 +250,7 @@ func getMark(c *gin.Context) {
 	service := mark.NewService()
 	mark, err := service.Get(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": mark}
@@ -267,7 +267,7 @@ func createMark(c *gin.Context) {
 	service := mark.NewService()
 	mark, err := service.Add(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": mark}

@@ -18,14 +18,10 @@ func (s *Service) List() ([]Subject, error) {
 	db := database.NewService()
 
 	var subjects []Subject
-	var id int
-	var name string
+	var subject Subject
 	rows, _ := db.GetConn().Query(context.Background(), "select * from subjects")
-	_, err := pgx.ForEachRow(rows, []any{&id, &name}, func() error {
-		subjects = append(subjects, Subject{
-			ID:   id,
-			Name: name,
-		})
+	_, err := pgx.ForEachRow(rows, []any{&subject.ID, &subject.Name}, func() error {
+		subjects = append(subjects, subject)
 		return nil
 	})
 	if err != nil {
@@ -38,17 +34,16 @@ func (s *Service) List() ([]Subject, error) {
 func (s *Service) Get(idx int) (*Subject, error) {
 	db := database.NewService()
 
-	var id int
-	var name string
-	err := db.GetConn().QueryRow(context.Background(), "select * from subjects where id = $1", idx).Scan(&id, &name)
+	var subject Subject
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"select * from subjects where id = $1", idx,
+	).Scan(&subject.ID, &subject.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Subject{
-		ID:   id,
-		Name: name,
-	}, nil
+	return &subject, nil
 }
 
 func (s *Service) Add(req CreateSubjectRequest) (*Subject, error) {

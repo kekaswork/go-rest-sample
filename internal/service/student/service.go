@@ -18,16 +18,10 @@ func (s *Service) List() ([]Student, error) {
 	db := database.NewService()
 
 	var students []Student
-	var id int
-	var firstName string
-	var lastName string
+	var student Student
 	rows, _ := db.GetConn().Query(context.Background(), "select * from students")
-	_, err := pgx.ForEachRow(rows, []any{&id, &firstName, &lastName}, func() error {
-		students = append(students, Student{
-			ID:        id,
-			FirstName: firstName,
-			LastName:  lastName,
-		})
+	_, err := pgx.ForEachRow(rows, []any{&student.ID, &student.FirstName, &student.LastName}, func() error {
+		students = append(students, student)
 		return nil
 	})
 	if err != nil {
@@ -40,19 +34,16 @@ func (s *Service) List() ([]Student, error) {
 func (s *Service) Get(idx int) (*Student, error) {
 	db := database.NewService()
 
-	var id int
-	var firstName string
-	var lastName string
-	err := db.GetConn().QueryRow(context.Background(), "select * from students where id = $1", idx).Scan(&id, &firstName, &lastName)
+	var student Student
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"select * from students where id = $1", idx,
+	).Scan(&student.ID, &student.FirstName, &student.LastName)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Student{
-		ID:        id,
-		FirstName: firstName,
-		LastName:  lastName,
-	}, nil
+	return &student, nil
 }
 
 func (s *Service) Add(req CreateStudentRequest) (*Student, error) {
