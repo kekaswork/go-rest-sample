@@ -54,10 +54,20 @@ func (s *Service) Get(idx int) (*Student, error) {
 	}, nil
 }
 
-func (s *Service) Add(id int) (*Student, error) {
-	// todo
+func (s *Service) Add(req CreateStudentRequest) (*Student, error) {
+	db := database.NewService()
 
-	return &Student{}, nil
+	var student Student
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"INSERT INTO students (first_name, last_name) VALUES ($1, $2) RETURNING id, first_name, last_name",
+		req.FirstName, req.LastName,
+	).Scan(&student.ID, &student.FirstName, &student.LastName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &student, nil
 }
 
 func (s *Service) Remove(id int) (*Student, error) {

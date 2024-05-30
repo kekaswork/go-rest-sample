@@ -57,10 +57,20 @@ func (s *Service) Get(idx int) (*Mark, error) {
 	}, nil
 }
 
-func (s *Service) Add(id int) (*Mark, error) {
-	// todo
+func (s *Service) Add(req CreateMarkRequest) (*Mark, error) {
+	db := database.NewService()
 
-	return &Mark{}, nil
+	var mark Mark
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"INSERT INTO marks (student_id, subject_id, mark, created_at) VALUES ($1, $2, $3, $4) RETURNING id, student_id, subject_id, mark, created_at",
+		req.StudentID, req.SubjectID, req.Mark, time.Now(),
+	).Scan(&mark.ID, &mark.StudentID, &mark.SubjectID, &mark.Mark, &mark.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	return &mark, nil
 }
 
 func (s *Service) Remove(id int) (*Mark, error) {

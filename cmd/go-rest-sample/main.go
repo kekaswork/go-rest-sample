@@ -27,20 +27,21 @@ func main() {
 	// Students
 	router.GET("/students", getStudents)
 	router.GET("/students/:id", getStudent)
-	// router.POST("/students", createStudent)
+	router.POST("/students", createStudent)
 	// router.PUT("/students/:id", updateStudent)
 	// router.DELETE("/students/:id", deleteStudent)
 
 	// Subjects
 	router.GET("/subjects", getSubjects)
 	router.GET("/subjects/:id", getSubject)
-	// router.POST("/subjects", createSubject)
+	router.POST("/subjects", createSubject)
 	// router.PUT("/subjects/:id", updateSubject)
 	// router.DELETE("/subjects/:id", deleteSubject)
 
 	// Marks
 	router.GET("/marks", getMarks)
 	router.GET("/marks/:id", getMark)
+	router.POST("/marks", createMark)
 	// router.GET("/marks/:id", getMarks)
 	// router.POST("/marks", createMark)
 	// router.PUT("/marks/:id", updateMark)
@@ -80,6 +81,23 @@ func getStudent(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func createStudent(c *gin.Context) {
+	var req student.CreateStudentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := student.NewService()
+	student, err := service.Add(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": student}
+	c.JSON(http.StatusOK, response)
+}
+
 func getSubjects(c *gin.Context) {
 	service := subject.NewService()
 	subjects, err := service.List()
@@ -109,6 +127,23 @@ func getSubject(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func createSubject(c *gin.Context) {
+	var req subject.CreateSubjectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := subject.NewService()
+	subject, err := service.Add(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": subject}
+	c.JSON(http.StatusOK, response)
+}
+
 func getMarks(c *gin.Context) {
 	service := mark.NewService()
 	marks, err := service.List()
@@ -130,6 +165,23 @@ func getMark(c *gin.Context) {
 
 	service := mark.NewService()
 	mark, err := service.Get(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": mark}
+	c.JSON(http.StatusOK, response)
+}
+
+func createMark(c *gin.Context) {
+	var req mark.CreateMarkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := mark.NewService()
+	mark, err := service.Add(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
