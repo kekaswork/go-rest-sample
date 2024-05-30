@@ -2,6 +2,7 @@ package subject
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/kekaswork/go-rest-sample/internal/database"
@@ -66,14 +67,29 @@ func (s *Service) Add(req CreateSubjectRequest) (*Subject, error) {
 	return &subject, nil
 }
 
-func (s *Service) Remove(id int) (*Subject, error) {
-	// todo
+func (s *Service) Remove(idx int) (*Subject, error) {
+	db := database.NewService()
 
-	return &Subject{}, nil
-}
+	var subject Subject
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, name FROM subjects WHERE id = $1",
+		idx,
+	).Scan(&subject.ID, &subject.Name)
 
-func (s *Service) Update(id int) (*Subject, error) {
-	// todo
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve subject with id %d: %v", idx, err)
+	}
 
-	return &Subject{}, nil
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"DELETE FROM subjects WHERE id = $1",
+		idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete subject: %v", err)
+	}
+
+	return &subject, nil
 }

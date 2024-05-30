@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -28,24 +29,19 @@ func main() {
 	router.GET("/students", getStudents)
 	router.GET("/students/:id", getStudent)
 	router.POST("/students", createStudent)
-	// router.PUT("/students/:id", updateStudent)
-	// router.DELETE("/students/:id", deleteStudent)
+	router.DELETE("/students/:id", deleteStudent)
 
 	// Subjects
 	router.GET("/subjects", getSubjects)
 	router.GET("/subjects/:id", getSubject)
 	router.POST("/subjects", createSubject)
-	// router.PUT("/subjects/:id", updateSubject)
-	// router.DELETE("/subjects/:id", deleteSubject)
+	router.DELETE("/subjects/:id", deleteSubject)
 
 	// Marks
 	router.GET("/marks", getMarks)
 	router.GET("/marks/:id", getMark)
 	router.POST("/marks", createMark)
-	// router.GET("/marks/:id", getMarks)
-	// router.POST("/marks", createMark)
-	// router.PUT("/marks/:id", updateMark)
-	// router.DELETE("/marks/:id", deleteMark)
+	router.DELETE("/marks/:id", deleteMark)
 
 	// router.GET("/report", generateReport)
 
@@ -91,6 +87,25 @@ func createStudent(c *gin.Context) {
 	service := student.NewService()
 	student, err := service.Add(req)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": student}
+	c.JSON(http.StatusOK, response)
+}
+
+func deleteStudent(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student ID"})
+		return
+	}
+
+	studentsService := student.NewService()
+	student, err := studentsService.Remove(id)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
@@ -144,6 +159,24 @@ func createSubject(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func deleteSubject(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		return
+	}
+
+	service := subject.NewService()
+	subject, err := service.Remove(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	response := gin.H{"code": 200, "data": subject}
+	c.JSON(http.StatusOK, response)
+}
+
 func getMarks(c *gin.Context) {
 	service := mark.NewService()
 	marks, err := service.List()
@@ -159,7 +192,7 @@ func getMark(c *gin.Context) {
 	idRaw := c.Param("id")
 	id, err := strconv.Atoi(idRaw)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mark ID"})
 		return
 	}
 
@@ -184,6 +217,24 @@ func createMark(c *gin.Context) {
 	mark, err := service.Add(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	response := gin.H{"code": 200, "data": mark}
+	c.JSON(http.StatusOK, response)
+}
+
+func deleteMark(c *gin.Context) {
+	idRaw := c.Param("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mark ID"})
+		return
+	}
+
+	service := mark.NewService()
+	mark, err := service.Remove(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	response := gin.H{"code": 200, "data": mark}

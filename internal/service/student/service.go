@@ -2,6 +2,7 @@ package student
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/kekaswork/go-rest-sample/internal/database"
@@ -70,14 +71,29 @@ func (s *Service) Add(req CreateStudentRequest) (*Student, error) {
 	return &student, nil
 }
 
-func (s *Service) Remove(id int) (*Student, error) {
-	// todo
+func (s *Service) Remove(idx int) (*Student, error) {
+	db := database.NewService()
 
-	return &Student{}, nil
-}
+	var student Student
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, first_name, last_name FROM students WHERE id = $1",
+		idx,
+	).Scan(&student.ID, &student.FirstName, &student.LastName)
 
-func (s *Service) Update(id int) (*Student, error) {
-	// todo
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve student with id %d: %v", idx, err)
+	}
 
-	return &Student{}, nil
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"DELETE FROM students WHERE id = $1",
+		idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete student: %v", err)
+	}
+
+	return &student, nil
 }

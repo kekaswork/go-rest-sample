@@ -2,6 +2,7 @@ package mark
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -73,14 +74,29 @@ func (s *Service) Add(req CreateMarkRequest) (*Mark, error) {
 	return &mark, nil
 }
 
-func (s *Service) Remove(id int) (*Mark, error) {
-	// todo
+func (s *Service) Remove(idx int) (*Mark, error) {
+	db := database.NewService()
 
-	return &Mark{}, nil
-}
+	var mark Mark
+	err := db.GetConn().QueryRow(
+		context.Background(),
+		"SELECT id, student_id, subject_id, mark, created_at FROM marks WHERE id = $1",
+		idx,
+	).Scan(&mark.ID, &mark.StudentID, &mark.SubjectID, &mark.Mark, &mark.Created)
 
-func (s *Service) Update(id int) (*Mark, error) {
-	// todo
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve mark with id %d: %v", idx, err)
+	}
 
-	return &Mark{}, nil
+	_, err = db.GetConn().Exec(
+		context.Background(),
+		"DELETE FROM marks WHERE id = $1",
+		idx,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete mark: %v", err)
+	}
+
+	return &mark, nil
 }
